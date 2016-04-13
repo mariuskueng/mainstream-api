@@ -1,13 +1,20 @@
 {
-  "name"         : "mainstream-api",
-  "version"      : "0.0.1",
-  "description"  : "API for Mainstream App",
-  "main"         : "server.js",
-  "author"       : "Marius Küng",
-  "dependencies" :
-  {
-    "express"    : "latest",
-    "request"    : "latest",
-    "cheerio"    : "latest"
+  "name": "mainstream-api",
+  "version": "0.0.1",
+  "description": "API for Mainstream App",
+  "main": "server.js",
+  "author": "Marius Küng",
+  "scripts": {
+    "start": "node server.js",
+    "watch": "nodemon server.js"
+  },
+  "dependencies": {
+    "cheerio": "latest",
+    "express": "latest",
+    "moment": "^2.12.0",
+    "request": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "^1.9.1"
   }
 }
