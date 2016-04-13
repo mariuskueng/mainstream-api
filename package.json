@@ -1,0 +1,13 @@
+{
+  "name"         : "mainstream-api",
+  "version"      : "0.0.1",
+  "description"  : "API for Mainstream App",
+  "main"         : "server.js",
+  "author"       : "Marius Küng",
+  "dependencies" :
+  {
+    "express"    : "latest",
+    "request"    : "latest",
+    "cheerio"    : "latest"
+  }
+}
