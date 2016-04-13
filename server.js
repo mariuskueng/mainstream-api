@@ -51,31 +51,30 @@ app.get('/scrape', function(req, res){
       let dataRaw = $('#content').text();
 
       let lines = dataRaw.split('\n');
+      // remove unnessary lines
+      lines.splice(lines.length - 9, 9);
 
+      // split text of lines to get separate data
       let concertsData = lines.map(function (line) {
         return line.split(",");
       });
-      // console.log(concertsData);
 
       for (var i = 0; i < concertsData.length; i++) {
-        if (concertsData[i].length > 1) {
-          // console.log(concertsData[i]);
-          let dateAndArtist = concertsData[i][0].split(/\s(.+)?/);
-          // console.log(dateAndArtist);
-          let concert = new Concert(
-            dateAndArtist[0],
-            (dateAndArtist[1] ? dateAndArtist[1].trim() : ''),
-            (concertsData[i][1] ? concertsData[i][1].trim() : ''),
-            (concertsData[i][2] ? concertsData[i][2].trim() : '')
-          );
+        let dateAndArtist = concertsData[i][0].split(/\s(.+)?/);
 
-          if (!concert.date.isValid()) {
-            console.log('Invalid Date');
-            continue;
-          }
+        let concert = new Concert(
+          dateAndArtist[0],
+          (dateAndArtist[1] ? dateAndArtist[1].trim() : ''),
+          (concertsData[i][1] ? concertsData[i][1].trim() : ''),
+          (concertsData[i][2] ? concertsData[i][2].trim() : '')
+        );
 
-          json.concerts.push(concert);
+        if (!concert.date.isValid()) {
+          console.log('Invalid Date');
+          continue;
         }
+
+        json.concerts.push(concert);
       }
 
     }
