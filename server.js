@@ -8,7 +8,7 @@ const app     = express();
 const moment = require('moment');
 
 moment.locale('de');
-let json = { lastUpdated: Date.now(), concerts : [], cities : [] };
+let json = { lastUpdated: moment(), concerts : {}, cities : [] };
 
 class Concert {
   constructor(date, artist, venue, city) {
@@ -70,11 +70,17 @@ app.get('/scrape', function(req, res){
         );
 
         if (!concert.date.isValid()) {
-          console.log('Invalid Date');
+          // skip current iteration if date is invalid, hence broken concert
           continue;
         }
 
-        json.concerts.push(concert);
+        let date = concert.date.unix();
+        // Add new date key
+        if (!json.concerts[date]) {
+          json.concerts[date] = [];
+        }
+        concert.date = concert.date.unix();
+        json.concerts[date].push(concert);
       }
 
     }
