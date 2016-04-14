@@ -101,7 +101,7 @@ app.get('/', function(req, res){
   res.send(json);
 });
 
-app.listen('3000')
+app.listen(process.env.PORT || 3000)
 
 console.log('Magic happens on port 3000');
 
