@@ -9,11 +9,11 @@
     "watch": "nodemon server.js"
   },
   "dependencies": {
-    "cheerio": "latest",
-    "express": "latest",
-    "moment": "^2.12.0",
+    "cheerio": "^0.20.0",
+    "express": "^4.13.4",
+    "moment": "^2.13.0",
     "mongoose": "^4.4.12",
-    "request": "latest"
+    "request": "^2.72.0"
   },
   "devDependencies": {
     "eslint": "^2.8.0",
