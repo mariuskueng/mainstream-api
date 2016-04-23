@@ -1,0 +1,12 @@
+{
+  "extends": "airbnb/base",
+  "globals": {
+    "Schema": true
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "mongo": true,
+    "es6": true,
+  }
+}
