@@ -14,7 +14,13 @@ const mongoURL =
   'mongodb://localhost/mainstream_api';
 
 const port = process.env.PORT || 3000;
-mongoose.connect(mongoURL);
+mongoose.connect(mongoURL, function (err, res) {
+  if (err) {
+    console.log ('ERROR connecting to: ' + mongoURL + '. ' + err);
+  } else {
+    console.log ('Succeeded connected to: ' + mongoURL);
+  }
+});
 
 const ConcertSchema = mongoose.Schema({
   date: {
