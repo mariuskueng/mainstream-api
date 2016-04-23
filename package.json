@@ -12,6 +12,7 @@
     "cheerio": "latest",
     "express": "latest",
     "moment": "^2.12.0",
+    "mongoose": "^4.4.12",
     "request": "latest"
   },
   "devDependencies": {
