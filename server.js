@@ -95,17 +95,39 @@ app.get('/scrape', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  // let json = { lastUpdated: moment(), concerts : {}, cities : [] };
-  Concert.find((err, concerts) => {
+  // Group and sort concerts by date
+  Concert.aggregate([
+    {
+      $group: {
+        _id: '$date',
+        concerts: {
+          $push: {
+            artist: '$artist',
+            city: '$city',
+            venue: '$venue',
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
+  ], (err, concerts) => {
     if (err) {
       res.send(err);
     }
-    res.json(concerts);
+
+    res.json({
+      lastModified: moment().unix(),
+      concerts: concerts,
+    });
   });
 });
 
 app.listen(port);
 
-console.log(`Magic happens on port ${port}`);
+console.log(`Server running on port ${port}`);
 
 exports = module.exports = app;
