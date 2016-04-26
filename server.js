@@ -11,6 +11,7 @@ moment.locale('de');
 const mongoURL =
   process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
+  process.env.MONGODB_URI ||
   'mongodb://localhost/mainstream_api';
 
 const port = process.env.PORT || 5000;
