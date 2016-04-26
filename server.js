@@ -13,7 +13,7 @@ const mongoURL =
   process.env.MONGOHQ_URL ||
   'mongodb://localhost/mainstream_api';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
     console.log ('ERROR connecting to: ' + mongoURL + '. ' + err);
