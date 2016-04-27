@@ -25,6 +25,9 @@ mongoose.connect(mongoURL, function (err, res) {
 
 const ConcertSchema = mongoose.Schema({
   date: {
+    type: Date,
+  },
+  timestamp: {
     type: Number,
   },
   artist: {
@@ -45,6 +48,7 @@ const Concert = mongoose.model('Concert', ConcertSchema);
 
 
 function parseData(res, html) {
+  const today = moment().startOf('day').unix();
   const $ = cheerio.load(html);
   const dataRaw = $('#content').text();
 
@@ -64,13 +68,15 @@ function parseData(res, html) {
     const venue = line[1];
     const city = line[2];
 
-    if (!date.isValid()) {
+    if (!date.isValid() || date.unix() < today) {
       // skip current iteration if date is invalid, hence broken concert
+      // or if older than today
       continue;
     }
 
     Concert.create({
-      date: date.unix(),
+      date: date.toDate(),
+      timestamp: date.unix(),
       artist: artist,
       venue: venue,
       city: city,
@@ -100,7 +106,7 @@ app.get('/', (req, res) => {
   Concert.aggregate([
     {
       $group: {
-        _id: '$date',
+        _id: '$timestamp',
         concerts: {
           $push: {
             artist: '$artist',
