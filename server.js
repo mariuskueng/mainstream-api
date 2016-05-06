@@ -106,7 +106,7 @@ app.get('/', (req, res) => {
   Concert.aggregate([
     {
       $group: {
-        _id: '$timestamp',
+        _id: '$date',
         concerts: {
           $push: {
             artist: '$artist',
@@ -127,7 +127,7 @@ app.get('/', (req, res) => {
     }
 
     res.json({
-      lastModified: moment().unix(),
+      lastModified: Date(),
       concerts: concerts,
     });
   });
