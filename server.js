@@ -5,6 +5,7 @@ const request = require('request');
 const cheerio = require('cheerio');
 const app = express();
 const moment = require('moment');
+require('moment-timezone');
 const mongoose = require('mongoose');
 
 moment.locale('de');
@@ -45,7 +46,8 @@ const ConcertSchema = mongoose.Schema({
 });
 
 const Concert = mongoose.model('Concert', ConcertSchema);
-const today = moment().startOf('day').unix();
+const TIMEZONE = "Europe/Zurich";
+const today = moment.tz(Date(), TIMEZONE).startOf('day');
 
 function parseData(res, html) {
   const $ = cheerio.load(html);
@@ -62,12 +64,12 @@ function parseData(res, html) {
 
   for (const line of concertsData) {
     const dateAndArtist = line[0].split(/\s(.+)?/);
-    const date = moment(dateAndArtist[0], 'DD.MM.YY');
+    const date = moment(dateAndArtist[0], 'DD.MM.YY').tz(TIMEZONE);
     const artist = dateAndArtist[1];
     const venue = line[1];
     const city = line[2];
 
-    if (!date.isValid() || date.unix() < today) {
+    if (!date.isValid() || date.unix() < today.unix()) {
       // skip current iteration if date is invalid, hence broken concert
       // or if older than today
       continue;
@@ -100,13 +102,15 @@ app.get('/scrape', (req, res) => {
   });
 });
 
+const now = moment.tz(Date(), "Europe/Zurich").toDate();
+
 app.get('/', (req, res) => {
   // Group, filter and sort concerts by date
   Concert.aggregate([
     // filter out concerts older than today
     {
       $match: {
-        date: { $gte: new Date() },
+        date: { $gte: now },
       },
     },
     {
@@ -134,7 +138,7 @@ app.get('/', (req, res) => {
     }
 
     res.json({
-      lastModified: Date(),
+      lastModified: now,
       concerts: concerts,
     });
   });
