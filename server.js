@@ -45,10 +45,9 @@ const ConcertSchema = mongoose.Schema({
 });
 
 const Concert = mongoose.model('Concert', ConcertSchema);
-
+const today = moment().startOf('day').unix();
 
 function parseData(res, html) {
-  const today = moment().startOf('day').unix();
   const $ = cheerio.load(html);
   const dataRaw = $('#content').text();
 
@@ -102,9 +101,16 @@ app.get('/scrape', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  // Group and sort concerts by date
+  // Group, filter and sort concerts by date
   Concert.aggregate([
+    // filter out concerts older than today
     {
+      $match: {
+        date: { $gte: new Date() },
+      },
+    },
+    {
+    // group concerts by day
       $group: {
         _id: '$date',
         concerts: {
@@ -116,6 +122,7 @@ app.get('/', (req, res) => {
         },
       },
     },
+    // sort desc
     {
       $sort: {
         _id: 1,
