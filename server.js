@@ -6,15 +6,17 @@ const cheerio = require('cheerio');
 const app = express();
 const moment = require('moment');
 const mongoose = require('mongoose');
+require('moment-timezone');
 
 moment.locale('de');
+
+const port = process.env.PORT || 3000;
 const mongoURL =
   process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
   process.env.MONGODB_URI ||
   'mongodb://localhost/mainstream_api';
 
-const port = process.env.PORT || 5000;
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
     console.log ('ERROR connecting to: ' + mongoURL + '. ' + err);
@@ -26,9 +28,6 @@ mongoose.connect(mongoURL, function (err, res) {
 const ConcertSchema = mongoose.Schema({
   date: {
     type: Date,
-  },
-  timestamp: {
-    type: Number,
   },
   artist: {
     type: String,
@@ -45,7 +44,10 @@ const ConcertSchema = mongoose.Schema({
 });
 
 const Concert = mongoose.model('Concert', ConcertSchema);
-const today = moment().startOf('day').unix();
+
+const TIMEZONE = "Europe/Zurich";
+const today = moment().tz(TIMEZONE).startOf('day');
+const now = moment().tz(TIMEZONE);
 
 function parseData(res, html) {
   const $ = cheerio.load(html);
@@ -62,12 +64,12 @@ function parseData(res, html) {
 
   for (const line of concertsData) {
     const dateAndArtist = line[0].split(/\s(.+)?/);
-    const date = moment(dateAndArtist[0], 'DD.MM.YY');
+    const date = moment(dateAndArtist[0], 'DD.MM.YY').tz(TIMEZONE);
     const artist = dateAndArtist[1];
     const venue = line[1];
     const city = line[2];
 
-    if (!date.isValid() || date.unix() < today) {
+    if (!date.isValid() || date.unix() < today.unix()) {
       // skip current iteration if date is invalid, hence broken concert
       // or if older than today
       continue;
@@ -75,10 +77,9 @@ function parseData(res, html) {
 
     Concert.create({
       date: date.toDate(),
-      timestamp: date.unix(),
-      artist: artist,
-      venue: venue,
-      city: city,
+      artist,
+      venue,
+      city,
     });
   }
 
@@ -106,7 +107,7 @@ app.get('/', (req, res) => {
     // filter out concerts older than today
     {
       $match: {
-        date: { $gte: new Date() },
+        date: { $gte: now.toDate() },
       },
     },
     {
@@ -134,7 +135,7 @@ app.get('/', (req, res) => {
     }
 
     res.json({
-      lastModified: Date(),
+      lastModified: now,
       concerts: concerts,
     });
   });
