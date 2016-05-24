@@ -5,17 +5,18 @@ const request = require('request');
 const cheerio = require('cheerio');
 const app = express();
 const moment = require('moment');
-require('moment-timezone');
 const mongoose = require('mongoose');
+require('moment-timezone');
 
 moment.locale('de');
+
+const port = process.env.PORT || 5000;
 const mongoURL =
   process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
   process.env.MONGODB_URI ||
   'mongodb://localhost/mainstream_api';
 
-const port = process.env.PORT || 5000;
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
     console.log ('ERROR connecting to: ' + mongoURL + '. ' + err);
@@ -26,9 +27,6 @@ mongoose.connect(mongoURL, function (err, res) {
 
 const ConcertSchema = mongoose.Schema({
   date: {
-    type: Date,
-  },
-  timestamp: {
     type: Number,
   },
   artist: {
@@ -46,8 +44,10 @@ const ConcertSchema = mongoose.Schema({
 });
 
 const Concert = mongoose.model('Concert', ConcertSchema);
+
 const TIMEZONE = "Europe/Zurich";
 const today = moment.tz(Date(), TIMEZONE).startOf('day');
+const now = moment.tz(Date(), "Europe/Zurich");
 
 function parseData(res, html) {
   const $ = cheerio.load(html);
@@ -76,8 +76,7 @@ function parseData(res, html) {
     }
 
     Concert.create({
-      date: date.toDate(),
-      timestamp: date.unix(),
+      date: date.unix(),
       artist: artist,
       venue: venue,
       city: city,
@@ -102,15 +101,13 @@ app.get('/scrape', (req, res) => {
   });
 });
 
-const now = moment.tz(Date(), "Europe/Zurich").toDate();
-
 app.get('/', (req, res) => {
   // Group, filter and sort concerts by date
   Concert.aggregate([
     // filter out concerts older than today
     {
       $match: {
-        date: { $gte: now },
+        date: { $gte: now.unix() },
       },
     },
     {
