@@ -49,7 +49,7 @@ const TIMEZONE = "Europe/Zurich";
 const today = moment().tz(TIMEZONE).startOf('day');
 const now = moment().tz(TIMEZONE);
 
-function parseData(res, html) {
+function parseData(html, callback) {
   const $ = cheerio.load(html);
   const dataRaw = $('#content').text();
 
@@ -83,7 +83,9 @@ function parseData(res, html) {
     });
   }
 
-  res.send('Data successfully saved!');
+  if (callback) {
+    callback();
+  }
 }
 
 app.get('/scrape', (req, res) => {
@@ -96,7 +98,9 @@ app.get('/scrape', (req, res) => {
       // Remove collection first
       mongoose.connection.db.dropCollection('concerts');
       // parse the data
-      parseData(res, html);
+      parseData(html, () => {
+        res.send('Data successfully saved!');
+      });
     }
   });
 });
