@@ -5,7 +5,7 @@ const moment = require('moment');
 require('moment-timezone');
 const Concert = require('./models/concert');
 
-const parseData = require('./parser');
+const parser = require('./parser');
 
 const config = process.argv[2] === '--production' ? require('./config.prod.js') : require('./config.dev.js');
 const app = express();
@@ -24,7 +24,7 @@ mongoose.connect(mongoURL, function (err, res) {
   }
 });
 
-app.get('/scrape', (req, res) => {
+app.get('/parse', (req, res) => {
   // The URL we will scrape from
   const url = 'http://mainstream.radiox.ch/konzerte';
   request(url, (err, response, html) => {
@@ -34,7 +34,7 @@ app.get('/scrape', (req, res) => {
       // Remove collection first
       mongoose.connection.db.dropCollection('concerts');
       // parse the data
-      parseData(html, () => {
+      parser(html, () => {
         res.send('Data successfully saved!');
       });
     }

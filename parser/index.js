@@ -7,7 +7,7 @@ const Concert = require('../models/concert');
 const timezone = 'Europe/Zurich';
 const today = moment().tz(timezone).startOf('day');
 
-function parseData(html, callback) {
+function parser(html, callback) {
   const $ = cheerio.load(html);
   const dataRaw = $('#content').text();
 
@@ -47,4 +47,4 @@ function parseData(html, callback) {
   }
 }
 
-module.exports = parseData;
+module.exports = parser;
