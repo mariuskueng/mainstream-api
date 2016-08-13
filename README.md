@@ -7,4 +7,4 @@ A web scraping app to serve concert data in JSON format.
 ### GET
   `/` – Returns all concerts
 
-  `/scrape` – Scrape data from `mainstream.radiox.ch`
+  `/parse` – Scrape & parse data from `mainstream.radiox.ch`
