@@ -1,5 +1,3 @@
-'use strict';
-
 const express = require('express');
 const request = require('request');
 const cheerio = require('cheerio');
@@ -19,9 +17,9 @@ const mongoURL =
 
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
-    console.log ('ERROR connecting to: ' + mongoURL + '. ' + err);
+    console.log('ERROR connecting to: ' + mongoURL + '. ' + err);
   } else {
-    console.log ('Succeeded connected to: ' + mongoURL);
+    console.log('Succeeded connected to: ' + mongoURL);
   }
 });
 
@@ -45,7 +43,7 @@ const ConcertSchema = mongoose.Schema({
 
 const Concert = mongoose.model('Concert', ConcertSchema);
 
-const TIMEZONE = "Europe/Zurich";
+const TIMEZONE = 'Europe/Zurich';
 const today = moment().tz(TIMEZONE).startOf('day');
 const now = moment().tz(TIMEZONE);
 
@@ -58,9 +56,7 @@ function parseData(html, callback) {
   lines.splice(lines.length - 9, 9);
 
   // split text of lines to get separate data
-  const concertsData = lines.map((line) => {
-    return line.split(',');
-  });
+  const concertsData = lines.map((line) => line.split(','));
 
   for (const line of concertsData) {
     const dateAndArtist = line[0].split(/\s(.+)?/);
@@ -140,7 +136,7 @@ app.get('/', (req, res) => {
 
     res.json({
       lastModified: now,
-      concerts: concerts,
+      concerts,
     });
   });
 });
