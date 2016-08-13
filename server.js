@@ -1,19 +1,16 @@
 const express = require('express');
 const request = require('request');
 const cheerio = require('cheerio');
-const app = express();
 const moment = require('moment');
 const mongoose = require('mongoose');
 require('moment-timezone');
+const config = process.argv[2] == '--production' ? require('./config.prod.js') : require('./config.dev.js');
 
+const app = express();
 moment.locale('de');
 
-const port = process.env.PORT || 3000;
-const mongoURL =
-  process.env.MONGOLAB_URI ||
-  process.env.MONGOHQ_URL ||
-  process.env.MONGODB_URI ||
-  'mongodb://localhost/mainstream_api';
+const port = config.port;
+const mongoURL = config.mongoURL;
 
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
@@ -76,6 +73,9 @@ function parseData(html, callback) {
       artist,
       venue,
       city,
+    }, function (err) {
+      if (err) return handleError(err);
+      // saved!
     });
   }
 
