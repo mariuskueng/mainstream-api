@@ -1,16 +1,20 @@
 const express = require('express');
 const request = require('request');
-const cheerio = require('cheerio');
-const moment = require('moment');
 const mongoose = require('mongoose');
+const moment = require('moment');
 require('moment-timezone');
-const config = process.argv[2] == '--production' ? require('./config.prod.js') : require('./config.dev.js');
+const Concert = require('./models/concert');
 
+const parseData = require('./parser');
+
+const config = process.argv[2] === '--production' ? require('./config.prod.js') : require('./config.dev.js');
 const app = express();
 moment.locale('de');
 
 const port = config.port;
 const mongoURL = config.mongoURL;
+const timezone = 'Europe/Zurich';
+const now = moment().tz(timezone);
 
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
@@ -19,70 +23,6 @@ mongoose.connect(mongoURL, function (err, res) {
     console.log('Succeeded connected to: ' + mongoURL);
   }
 });
-
-const ConcertSchema = mongoose.Schema({
-  date: {
-    type: Date,
-  },
-  artist: {
-    type: String,
-    trim: true,
-  },
-  venue: {
-    type: String,
-    trim: true,
-  },
-  city: {
-    type: String,
-    trim: true,
-  },
-});
-
-const Concert = mongoose.model('Concert', ConcertSchema);
-
-const TIMEZONE = 'Europe/Zurich';
-const today = moment().tz(TIMEZONE).startOf('day');
-const now = moment().tz(TIMEZONE);
-
-function parseData(html, callback) {
-  const $ = cheerio.load(html);
-  const dataRaw = $('#content').text();
-
-  const lines = dataRaw.split('\n');
-  // remove unnessary lines
-  lines.splice(lines.length - 9, 9);
-
-  // split text of lines to get separate data
-  const concertsData = lines.map((line) => line.split(','));
-
-  for (const line of concertsData) {
-    const dateAndArtist = line[0].split(/\s(.+)?/);
-    const date = moment(dateAndArtist[0], 'DD.MM.YY').tz(TIMEZONE);
-    const artist = dateAndArtist[1];
-    const venue = line[1];
-    const city = line[2];
-
-    if (!date.isValid() || date.unix() < today.unix()) {
-      // skip current iteration if date is invalid, hence broken concert
-      // or if older than today
-      continue;
-    }
-
-    Concert.create({
-      date: date.toDate(),
-      artist,
-      venue,
-      city,
-    }, function (err) {
-      if (err) return handleError(err);
-      // saved!
-    });
-  }
-
-  if (callback) {
-    callback();
-  }
-}
 
 app.get('/scrape', (req, res) => {
   // The URL we will scrape from
