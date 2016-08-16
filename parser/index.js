@@ -5,9 +5,9 @@ require('moment-timezone');
 const Concert = require('../models/concert');
 
 const timezone = 'Europe/Zurich';
-const today = moment().tz(timezone).startOf('day');
 
 function parser(html, callback) {
+  const today = moment().tz(timezone).startOf('day');
   const $ = cheerio.load(html);
   const dataRaw = $('#content').text();
 

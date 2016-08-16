@@ -14,7 +14,6 @@ moment.locale('de');
 const port = config.port;
 const mongoURL = config.mongoURL;
 const timezone = 'Europe/Zurich';
-const now = moment().tz(timezone);
 
 mongoose.connect(mongoURL, function (err, res) {
   if (err) {
@@ -42,6 +41,7 @@ app.get('/parse', (req, res) => {
 });
 
 app.get('/', (req, res) => {
+  const now = moment().tz(timezone);
   // Group, filter and sort concerts by date
   Concert.aggregate([
     // filter out concerts older than today
